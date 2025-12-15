@@ -42,13 +42,8 @@ Else
     $event.onError:=Formula(ALERT($2.message))
     $event.onSuccess:=Formula(ALERT(This.file.name+" loaded!"))
     
-    /*
-        embeddings
-    */
-    
-    //3.13 GB
-    $folder:=$homeFolder.folder("answerdotai/ModernBERT-base")
-    $URL:="answerdotai/ModernBERT-base"
+    $folder:=$homeFolder.folder("nomic-ai/modernbert-embed-base")
+    $URL:="nomic-ai/modernbert-embed-base"
     $port:=8080
     $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
     max_concurrent_requests: 512}; $event)
