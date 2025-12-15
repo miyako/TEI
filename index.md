@@ -17,7 +17,38 @@ layout: default
 Instantiate `cs.TEI.TEI` in your *On Startup* database method:
 
 ```4d
- 
+ var $TEI : cs.TEI.TEI
+
+If (False)
+    $TEI:=cs.TEI.TEI.new()  //default
+Else 
+    var $homeFolder : 4D.Folder
+    $homeFolder:=Folder(fk home folder).folder(".TEI")
+    var $file : 4D.File
+    var $URL : Text
+    var $port : Integer
+    
+    var $event : cs.TEI.TEIEvent
+    $event:=cs.TEI.TEIEvent.new()
+    /*
+        Function onError($params : Object; $error : cs._error)
+        Function onSuccess($params : Object)
+    */
+    $event.onError:=Formula(ALERT($2.message))
+    $event.onSuccess:=Formula(ALERT(This.file.name+" loaded!"))
+    
+    /*
+        embeddings
+    */
+    
+    //3.13 GB
+    $folder:=$homeFolder.folder("answerdotai/ModernBERT-base")
+    $URL:="answerdotai/ModernBERT-base"
+    $port:=8080
+    $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
+    max_concurrent_requests: 4}; $event)
+    
+End if 
 ```
 
 Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:
