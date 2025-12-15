@@ -32,3 +32,5 @@ or
 set CMAKE_GENERATOR=Ninja
 cargo build
 ```
+
+https://huggingface.co/docs/text-embeddings-inference/local_cpu
