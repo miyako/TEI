@@ -25,6 +25,12 @@ cargo build --release --target x86_64-pc-windows-msvc
 > [!WARNING]
 > Don't use Visual Studio 2026 (18). Only 2022 (17) is supported.
 
+```
+rustup target add x86_64-pc-windows-msvc
+rustup default stable-x86_64-pc-windows-msvc
+cargo clean
+cargo +stable-x86_64-pc-windows-msvc build --release --target x86_64-pc-windows-msvc
+```
 
 or 
 
