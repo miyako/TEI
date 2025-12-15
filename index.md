@@ -12,6 +12,11 @@ layout: default
 #### Abstract
 
 [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) is a high-performance extraction framework and server that supports a wide variety of embedding models such as Nomic, BERT, CamemBERT, XLM-RoBERTa models with absolute positions; JinaBERT model with Alibi positions; Mistral, Alibaba GTE, Qwen2 models with Rope positions; MPNet, ModernBERT, Qwen3, and Gemma3.
+
+TEI is the industry standard for serving embeddings in the Hugging Face ecosystem and is widely deployed in enterprise RAG stacks. It expects NVIDIA GPUs and aims to process thousands of requests per second from many users. TEI has sophisticated continuous batching systems designed to handle handling concurrent requests. 
+
+For 4D developers looking for a local LLM engine for semantic search, TEI might be an overkill. Unlike llama.cpp which expects weights in quantised custom GGUF format, TEI natively supports full precision weights. 4D memory consumption may jump up while loading the model before returning to regular levels.
+
 #### Usage
 
 Instantiate `cs.TEI.TEI` in your *On Startup* database method:
@@ -46,7 +51,7 @@ Else
     $URL:="answerdotai/ModernBERT-base"
     $port:=8080
     $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
-    max_concurrent_requests: 4}; $event)
+    max_concurrent_requests: 512}; $event)
     
 End if 
 ```

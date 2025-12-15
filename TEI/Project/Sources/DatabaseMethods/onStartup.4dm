@@ -27,6 +27,6 @@ embeddings
 	$URL:="answerdotai/ModernBERT-base"
 	$port:=8080
 	$TEI:=cs:C1710.TEI.new($port; $folder; $URL; {\
-		max_concurrent_requests: 4}; $event)
+		max_concurrent_requests: 512}; $event)
 	
 End if 
