@@ -28,6 +28,8 @@ cargo build --release --target x86_64-pc-windows-msvc
 * clear .cargo/target.toml
 
 ```
+export CC=clang-cl
+export CXX=clang-cl
 rustup target add x86_64-pc-windows-msvc
 rustup default stable-x86_64-pc-windows-msvc
 cargo clean
