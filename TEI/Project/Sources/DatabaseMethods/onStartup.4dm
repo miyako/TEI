@@ -28,6 +28,9 @@ embeddings
 	
 	$folder:=$homeFolder.folder("nomic-ai/modernbert-embed-base")
 	$URL:="nomic-ai/modernbert-embed-base"
+
+	$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+	$URL:="dangvantuan/sentence-camembert-base"
 	
 	$port:=8080
 	$TEI:=cs:C1710.TEI.new($port; $folder; $URL; {\
