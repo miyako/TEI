@@ -22,6 +22,8 @@ cargo clean
 cargo build --release --target x86_64-pc-windows-msvc
 ```
 
+Don't use Visual Studio 2026 (18). Only 2022 (17) is supported.
+
 
 or 
 
