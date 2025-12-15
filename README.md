@@ -28,6 +28,9 @@ cargo build --release --target x86_64-pc-windows-msvc
 * clear .cargo/target.toml
 
 ```
+set CC=clang-cl
+set CXX=clang-cl
+set AWS_LC_SYS_NO_C11=1
 rustup target add x86_64-pc-windows-msvc
 rustup default stable-x86_64-pc-windows-msvc
 cargo clean
