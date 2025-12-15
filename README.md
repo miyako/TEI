@@ -21,3 +21,11 @@ rustup override set stable-x86_64-pc-windows-msvc
 cargo clean
 cargo build --release --target x86_64-pc-windows-msvc
 ```
+
+
+or 
+
+```
+set CMAKE_GENERATOR=Ninja
+cargo build
+```
