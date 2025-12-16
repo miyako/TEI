@@ -41,7 +41,7 @@ cargo +stable-x86_64-pc-windows-msvc build --release --target x86_64-pc-windows-
 
 * .cargo/config.toml
 
-``toml
+```toml
 [env]
 AWS_LC_SYS_NO_C11 = "1"
 AWS_LC_SYS_C_STD = "gnu99"
