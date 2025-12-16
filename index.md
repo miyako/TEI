@@ -15,6 +15,8 @@ layout: default
 
 TEI is the industry standard for serving embeddings in the Hugging Face ecosystem and is widely deployed in enterprise RAG stacks. It expects NVIDIA GPUs and aims to process thousands of concurrent requests per second.
 
+**Note**: The componet's 'CLI is compiled with Metal support for Apple Silicon and CPU-only settings for Windows and Mac Intel.
+
 For 4D developers looking for a local LLM engine to support semantic search, TEI might be an overkill. Unlike llama.cpp which expects weights in quantised custom GGUF format, TEI works with full precision weights. 4D memory consumption may jump up while loading the model before returning to regular levels.
 
 #### Usage
