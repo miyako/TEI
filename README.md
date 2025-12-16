@@ -39,4 +39,22 @@ $env:ASM = "nasm"
 cargo +stable-x86_64-pc-windows-msvc build --release --target x86_64-pc-windows-msvc --no-default-features --features http,candle --bin text-embeddings-router
 ```
 
+* .cargo/config.toml
+
+``toml
+[env]
+AWS_LC_SYS_NO_C11 = "1"
+AWS_LC_SYS_C_STD = "gnu99"
+
+[dependencies]
+rustls = { version = "0.23", default-features = false, features = ["std"] }
+
+[target.x86_64-pc-windows-msvc]
+linker = "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\link.exe"
+
+rustflags = [
+  "-C", "target-feature=+crt-static"
+]
+```
+
 https://huggingface.co/docs/text-embeddings-inference/local_cpu
