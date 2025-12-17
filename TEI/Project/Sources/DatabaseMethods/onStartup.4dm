@@ -13,7 +13,7 @@ Else
 	$event:=cs:C1710.TEIEvent.new()
 /*
 Function onError($params : Object; $error : cs._error)
-Function onSuccess($params : Object)
+Function onSuccess($params : Object; $models : cs._models)
 */
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
 	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
@@ -22,7 +22,6 @@ Function onSuccess($params : Object)
 embeddings
 */
 	
-	//3.13 GB
 	$folder:=$homeFolder.folder("answerdotai/ModernBERT-base")
 	$URL:="answerdotai/ModernBERT-base"
 	

@@ -8,8 +8,8 @@ Class constructor($port : Integer; $folder : 4D:C1709.Folder; $URL : Text; $opti
 		If (Value type:C1509($folder)#Is object:K8:27) || (Not:C34(OB Instance of:C1731($folder; 4D:C1709.Folder))) || ($URL="")
 			var $homeFolder : 4D:C1709.Folder
 			$homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".TEI")
-			$folder:=$homeFolder.folder("intfloat/multilingual-e5-large-instruct")
-			$URL:="intfloat/multilingual-e5-large-instruct"
+			$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+			$URL:="dangvantuan/sentence-camembert-base"
 		End if 
 		
 		If ($port=0) || ($port<0) || ($port>65535)
