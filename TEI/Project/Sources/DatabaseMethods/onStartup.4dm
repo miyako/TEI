@@ -17,6 +17,8 @@ Function onSuccess($params : Object; $models : cs._models)
 */
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
 	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
+	$event.onData:=Formula:C1597(onData)  //onData@4D.HTTPRequest
+	$event.onResponse:=Formula:C1597(onResponse)  //onResponse@4D.HTTPRequest
 	
 /*
 embeddings
@@ -28,8 +30,13 @@ embeddings
 	$folder:=$homeFolder.folder("nomic-ai/modernbert-embed-base")
 	$URL:="nomic-ai/modernbert-embed-base"
 	
-	$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-	$URL:="dangvantuan/sentence-camembert-base"
+	If (False:C215)  //Hugging Face mode (recommended)
+		$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+		$URL:="dangvantuan/sentence-camembert-base"
+	Else   //HTTP mode
+		$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+		$URL:="dangvantuan/sentence-camembert-base"
+	End if 
 	
 	$port:=8080
 	$TEI:=cs:C1710.TEI.new($port; $folder; $URL; {\

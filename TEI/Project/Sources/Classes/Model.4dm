@@ -98,6 +98,10 @@ Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 		This:C1470._fileHandle.writeBlob($event.data)
 	End if 
 	
+	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+		This:C1470.event.onData.call(This:C1470; $request; $event)
+	End if 
+	
 Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 	
 	If ($request.dataType="blob") && ($request.response.body#Null:C1517)
@@ -111,7 +115,9 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 				$zip:=ZIP Read archive:C1637(This:C1470.file)
 				$zip.root.copyTo(This:C1470.file.parent)
 				This:C1470.file.delete()
-				
+				If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+					This:C1470.event.onResponse.call(This:C1470; $request; $event)
+				End if 
 				This:C1470.start()
 			End if 
 		Else   //range get
@@ -129,7 +135,9 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 					$zip:=ZIP Read archive:C1637(This:C1470.file)
 					$zip.root.copyTo(This:C1470.file.parent)
 					This:C1470.file.delete()
-					
+					If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+						This:C1470.event.onResponse.call(This:C1470; $request; $event)
+					End if 
 					This:C1470.start()
 				End if 
 			End if 

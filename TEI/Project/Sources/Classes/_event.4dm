@@ -2,8 +2,11 @@ Class constructor()
 	
 Function onError($params : Object; $error : cs:C1710._error)
 	
-	KILL WORKER:C1390
+Function onSuccess($params : Object; $models : cs:C1710._models)
 	
-Function onSuccess($params : Object)
+	//MARK:HTTPRequest
 	
-	KILL WORKER:C1390
+Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
+	
+Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
+	
