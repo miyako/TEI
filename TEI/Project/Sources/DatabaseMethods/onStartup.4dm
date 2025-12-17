@@ -17,8 +17,8 @@ Function onSuccess($params : Object; $models : cs._models)
 */
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
 	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
-	$event.onData:=Formula:C1597(onData)  //onData@4D.HTTPRequest
-	$event.onResponse:=Formula:C1597(onResponse)  //onResponse@4D.HTTPRequest
+	$event.onData:=Formula:C1597(MESSAGE:C88(String:C10((This:C1470.range.end/This:C1470.range.length)*100; "###.00%")))  //onData@4D.HTTPRequest
+	$event.onResponse:=Formula:C1597(IDLE:C311)  //onResponse@4D.HTTPRequest
 	
 /*
 embeddings
@@ -33,9 +33,9 @@ embeddings
 	If (False:C215)  //Hugging Face mode (recommended)
 		$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
 		$URL:="dangvantuan/sentence-camembert-base"
-	Else   //HTTP mode
+	Else   //HTTP mode (must be .zip)
 		$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-		$URL:="dangvantuan/sentence-camembert-base"
+		$URL:="https://github.com/miyako/TEI/releases/download/models/sentence-camembert-base.zip"
 	End if 
 	
 	$port:=8080
