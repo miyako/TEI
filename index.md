@@ -24,7 +24,7 @@ For 4D developers looking for a local LLM engine to support semantic search, TEI
 Instantiate `cs.TEI.TEI` in your *On Startup* database method:
 
 ```4d
- var $TEI : cs.TEI.TEI
+var $TEI : cs.TEI.TEI
 
 If (False)
     $TEI:=cs.TEI.TEI.new()  //default
@@ -35,23 +35,34 @@ Else
     var $URL : Text
     var $port : Integer
     
-    var $event : cs.TEI.TEIEvent
-    $event:=cs.TEI.TEIEvent.new()
+    var $event : cs.event.event
+    $event:=cs.event.event.new()
     /*
-        Function onError($params : Object; $error : cs._error)
-        Function onSuccess($params : Object)
+        Function onError($params : Object; $error : cs.event.error)
+        Function onSuccess($params : Object; $models : cs.event.models)
     */
     $event.onError:=Formula(ALERT($2.message))
-    $event.onSuccess:=Formula(ALERT(This.file.name+" loaded!"))
+    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
+    $event.onData:=Formula(MESSAGE(String((This.range.end/This.range.length)*100; "###.00%")))  //onData@4D.HTTPRequest
+    $event.onResponse:=Formula(ERASE WINDOW)  //onResponse@4D.HTTPRequest
     
-    $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-    $URL:="dangvantuan/sentence-camembert-base"
-
+    /*
+        embeddings
+    */
+    
+    If (False)  //Hugging Face mode (recommended)
+        $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+        $URL:="dangvantuan/sentence-camembert-base"
+    Else   //HTTP mode (must be .zip)
+        $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+        $URL:="https://github.com/miyako/TEI/releases/download/models/sentence-camembert-base.zip"
+    End if 
+    
     $port:=8080
     $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
     max_concurrent_requests: 512}; $event)
     
-End if 
+End if  
 ```
 
 Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:

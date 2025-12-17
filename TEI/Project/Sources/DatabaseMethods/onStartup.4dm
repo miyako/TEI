@@ -18,17 +18,11 @@ Function onSuccess($params : Object; $models : cs.event.models)
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
 	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
 	$event.onData:=Formula:C1597(MESSAGE:C88(String:C10((This:C1470.range.end/This:C1470.range.length)*100; "###.00%")))  //onData@4D.HTTPRequest
-	$event.onResponse:=Formula:C1597(IDLE:C311)  //onResponse@4D.HTTPRequest
+	$event.onResponse:=Formula:C1597(ERASE WINDOW:C160)  //onResponse@4D.HTTPRequest
 	
 /*
 embeddings
 */
-	
-	$folder:=$homeFolder.folder("answerdotai/ModernBERT-base")
-	$URL:="answerdotai/ModernBERT-base"
-	
-	$folder:=$homeFolder.folder("nomic-ai/modernbert-embed-base")
-	$URL:="nomic-ai/modernbert-embed-base"
 	
 	If (False:C215)  //Hugging Face mode (recommended)
 		$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
