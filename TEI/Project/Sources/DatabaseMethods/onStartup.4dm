@@ -16,7 +16,7 @@ Function onError($params : Object; $error : cs._error)
 Function onSuccess($params : Object)
 */
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
-	$event.onSuccess:=Formula:C1597(ALERT:C41(This:C1470.file.name+" loaded!"))
+	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
 	
 /*
 embeddings
@@ -28,7 +28,7 @@ embeddings
 	
 	$folder:=$homeFolder.folder("nomic-ai/modernbert-embed-base")
 	$URL:="nomic-ai/modernbert-embed-base"
-
+	
 	$folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
 	$URL:="dangvantuan/sentence-camembert-base"
 	

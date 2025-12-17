@@ -78,7 +78,11 @@ Function start()
 	$llama.start(This:C1470.options.port; This:C1470.options)
 	
 	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
-		This:C1470.event.onSuccess.call(This:C1470; This:C1470.options)
+		var $model : cs:C1710._model
+		$model:=cs:C1710._model.new(This:C1470.options.model.name; Not:C34(This:C1470.options.model.exists))
+		var $models : cs:C1710._models
+		$models:=cs:C1710._models.new([$model])
+		This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; $models)
 	End if 
 	
 Function terminate()
