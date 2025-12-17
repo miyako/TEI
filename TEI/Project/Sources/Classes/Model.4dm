@@ -11,9 +11,9 @@ property returnResponseBody : Boolean
 property decodeData : Boolean
 property range : Object
 property bufferSize : Integer
-property event : cs:C1710._event
+property event : cs:C1710.event.event
 
-Class constructor($port : Integer; $folder : 4D:C1709.Folder; $URL : Text; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710._event)
+Class constructor($port : Integer; $folder : 4D:C1709.Folder; $URL : Text; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710.event.event)
 	
 	This:C1470.file:=$folder.parent.file($folder.name+".zip")
 	This:C1470.URL:=$URL
@@ -77,11 +77,11 @@ Function start()
 	$llama:=cs:C1710.workers.worker.new(cs:C1710._server)
 	$llama.start(This:C1470.options.port; This:C1470.options)
 	
-	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
-		var $model : cs:C1710._model
-		$model:=cs:C1710._model.new(This:C1470.options.model.name; Not:C34(This:C1470.options.model.exists))
-		var $models : cs:C1710._models
-		$models:=cs:C1710._models.new([$model])
+	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+		var $model : cs:C1710.event.model
+		$model:=cs:C1710.event.model.new(This:C1470.options.model.name; Not:C34(This:C1470.options.model.exists))
+		var $models : cs:C1710.event.models
+		$models:=cs:C1710.event.models.new([$model])
 		This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; $models)
 	End if 
 	
@@ -98,7 +98,7 @@ Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 		This:C1470._fileHandle.writeBlob($event.data)
 	End if 
 	
-	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
 		This:C1470.event.onData.call(This:C1470; $request; $event)
 	End if 
 	
@@ -115,7 +115,7 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 				$zip:=ZIP Read archive:C1637(This:C1470.file)
 				$zip.root.copyTo(This:C1470.file.parent)
 				This:C1470.file.delete()
-				If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+				If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
 					This:C1470.event.onResponse.call(This:C1470; $request; $event)
 				End if 
 				This:C1470.start()
@@ -135,7 +135,7 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 					$zip:=ZIP Read archive:C1637(This:C1470.file)
 					$zip.root.copyTo(This:C1470.file.parent)
 					This:C1470.file.delete()
-					If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+					If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
 						This:C1470.event.onResponse.call(This:C1470; $request; $event)
 					End if 
 					This:C1470.start()
