@@ -40,11 +40,20 @@ Else
     /*
         Function onError($params : Object; $error : cs.event.error)
         Function onSuccess($params : Object; $models : cs.event.models)
+        Function onData($request : 4D.HTTPRequest; $event : Object)
+        Function onResponse($request : 4D.HTTPRequest; $event : Object)
+        Function onTerminate($worker : 4D.SystemWorker; $params : Object)
+        Function onStdOut($worker : 4D.SystemWorker; $params : Object)
+        Function onStdErr($worker : 4D.SystemWorker; $params : Object)
     */
+    
     $event.onError:=Formula(ALERT($2.message))
     $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
-    $event.onData:=Formula(MESSAGE(String((This.range.end/This.range.length)*100; "###.00%")))  //onData@4D.HTTPRequest
-    $event.onResponse:=Formula(ERASE WINDOW)  //onResponse@4D.HTTPRequest
+    $event.onData:=Formula(LOG EVENT(Into 4D debug message; "download:"+String((This.range.end/This.range.length)*100; "###.00%")))
+    $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; "download complete"))
+    $event.onStdOut:=Formula(LOG EVENT(Into 4D debug message; "out:"+$2.data))
+    $event.onStdErr:=Formula(LOG EVENT(Into 4D debug message; "err:"+$2.data))
+    $event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
     
     /*
         embeddings
@@ -58,7 +67,7 @@ Else
         $URL:="https://github.com/miyako/TEI/releases/download/models/sentence-camembert-base.zip"
     End if 
     
-    $port:=8080
+    $port:=8085
     $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
     max_concurrent_requests: 512}; $event)
     

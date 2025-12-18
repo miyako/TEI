@@ -29,6 +29,9 @@ Class constructor($port : Integer; $folder : 4D:C1709.Folder; $URL : Text; $opti
 	This:C1470.decodeData:=False:C215
 	This:C1470.bufferSize:=10*(1024^2)
 	This:C1470.event:=$event
+	This:C1470.options.onTerminate:=This:C1470.event.onTerminate
+	This:C1470.options.onStdErr:=This:C1470.event.onStdErr
+	This:C1470.options.onStdOut:=This:C1470.event.onStdOut
 	
 	If (This:C1470.URL#"http@")
 		This:C1470.options.URL:=This:C1470.URL
@@ -43,6 +46,14 @@ Class constructor($port : Integer; $folder : 4D:C1709.Folder; $URL : Text; $opti
 			This:C1470.start()
 		End if 
 	End if 
+	
+Function models() : cs:C1710.event.models
+	
+	var $model : cs:C1710.event.model
+	$model:=cs:C1710.event.model.new(This:C1470.options.model.name; Not:C34(This:C1470.options.model.exists))
+	var $models : cs:C1710.event.models
+	
+	return cs:C1710.event.models.new([$model])
 	
 Function head()
 	
@@ -69,6 +80,8 @@ Function head()
 			This:C1470.headers.Range:="bytes="+String:C10(This:C1470.range.start)+"-"+String:C10(This:C1470.range.end)
 		End if 
 		4D:C1709.HTTPRequest.new(This:C1470.URL; This:C1470)
+	Else 
+		This:C1470._onResponse.call(This:C1470; {success: False:C215}; This:C1470.options)
 	End if 
 	
 Function start()
@@ -78,19 +91,8 @@ Function start()
 	$llama.start(This:C1470.options.port; This:C1470.options)
 	
 	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
-		var $model : cs:C1710.event.model
-		$model:=cs:C1710.event.model.new(This:C1470.options.model.name; Not:C34(This:C1470.options.model.exists))
-		var $models : cs:C1710.event.models
-		$models:=cs:C1710.event.models.new([$model])
-		This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; $models)
+		This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; This:C1470.models())
 	End if 
-	
-Function terminate()
-	
-	var $llama : cs:C1710.workers.worker
-	$llama:=cs:C1710.workers.worker.new(cs:C1710._server)
-	
-	$llama.terminate()
 	
 Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 	
@@ -150,5 +152,4 @@ Function onError($request : 4D:C1709.HTTPRequest; $event : Object)
 		This:C1470._onResponse.call(This:C1470; {success: False:C215})
 		This:C1470._fileHandle:=Null:C1517
 		This:C1470.file.delete()
-		This:C1470.terminate()
 	End if 
