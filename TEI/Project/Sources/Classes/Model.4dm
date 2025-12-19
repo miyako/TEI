@@ -15,7 +15,7 @@ property event : cs:C1710.event.event
 
 Class constructor($port : Integer; $folder : 4D:C1709.Folder; $URL : Text; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710.event.event)
 	
-	This:C1470.file:=$folder.parent.file($folder.name+".zip")
+	This:C1470.file:=$folder.parent.file($folder.fullName+".zip")
 	This:C1470.URL:=$URL
 	This:C1470.method:="GET"
 	This:C1470.headers:={Accept: "application/vnd.github+json"}
