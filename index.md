@@ -24,16 +24,18 @@ For 4D developers looking for a local LLM engine to support semantic search, TEI
 Instantiate `cs.TEI.TEI` in your *On Startup* database method:
 
 ```4d
-var $TEI : cs.TEI.TEI
+var $Ai00 : cs.Ai00.Ai00
 
 If (False)
-    $TEI:=cs.TEI.TEI.new()  //default
+    $Ai00:=cs.Ai00.Ai00.new()  //default
 Else 
     var $homeFolder : 4D.Folder
-    $homeFolder:=Folder(fk home folder).folder(".TEI")
+    $homeFolder:=Folder(fk home folder).folder(".Ai00")
     var $file : 4D.File
-    var $URL : Text
+    $file:=$homeFolder.file("rwkv7-g1a-0.4b-20250905-ctx4096.st")
+    $URL:="https://github.com/miyako/ai00/releases/download/models/rwkv7-g1a-0.4b-20250905-ctx4096.st"
     var $port : Integer
+    $port:=8087
     
     var $event : cs.event.event
     $event:=cs.event.event.new()
@@ -43,34 +45,18 @@ Else
         Function onData($request : 4D.HTTPRequest; $event : Object)
         Function onResponse($request : 4D.HTTPRequest; $event : Object)
         Function onTerminate($worker : 4D.SystemWorker; $params : Object)
-        Function onStdOut($worker : 4D.SystemWorker; $params : Object)
-        Function onStdErr($worker : 4D.SystemWorker; $params : Object)
     */
     
     $event.onError:=Formula(ALERT($2.message))
     $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
     $event.onData:=Formula(LOG EVENT(Into 4D debug message; "download:"+String((This.range.end/This.range.length)*100; "###.00%")))
     $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; "download complete"))
-    $event.onStdOut:=Formula(LOG EVENT(Into 4D debug message; "out:"+$2.data))
-    $event.onStdErr:=Formula(LOG EVENT(Into 4D debug message; "err:"+$2.data))
     $event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
     
-    /*
-        embeddings
-    */
-    
-    If (False)  //Hugging Face mode (recommended)
-        $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-        $URL:="dangvantuan/sentence-camembert-base"
-    Else   //HTTP mode (must be .zip)
-        $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-        $URL:="https://github.com/miyako/TEI/releases/download/models/sentence-camembert-base.zip"
-    End if 
-    
-    $port:=8085
-    $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
-    max_concurrent_requests: 512}; $event)
-    
+    $Ai00:=cs.Ai00.Ai00.new($port; $file; $URL; {\
+    max_batch: 1; \
+    quant_type: "Int8"; \
+    precision: "Fp32"}; $event)
 End if  
 ```
 
