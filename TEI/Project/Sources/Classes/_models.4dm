@@ -16,6 +16,7 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	This:C1470.options.onStdErr:=This:C1470.event.onStdErr
 	This:C1470.options.onStdOut:=This:C1470.event.onStdOut
 	This:C1470.options.port:=$port
+	This:C1470.offline:=False:C215
 	
 	This:C1470.files:=[]
 	This:C1470._models:=[]
