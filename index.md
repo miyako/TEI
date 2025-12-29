@@ -31,7 +31,6 @@ If (False)
 Else 
     var $homeFolder : 4D.Folder
     $homeFolder:=Folder(fk home folder).folder(".TEI")
-    var $file : 4D.File
     var $URL : Text
     var $port : Integer
     
@@ -47,27 +46,26 @@ Else
     
     $event.onError:=Formula(ALERT($2.message))
     $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
-    $event.onData:=Formula(LOG EVENT(Into 4D debug message; "download:"+String((This.range.end/This.range.length)*100; "###.00%")))
-    $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; "download complete"))
+    $event.onData:=Formula(LOG EVENT(Into 4D debug message; This.file.fullName+":"+String((This.range.end/This.range.length)*100; "###.00%")))
+    $event.onData:=Formula(MESSAGE(This.file.fullName+":"+String((This.range.end/This.range.length)*100; "###.00%")))
+    $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; This.file.fullName+":download complete"))
+    $event.onResponse:=Formula(MESSAGE(This.file.fullName+":download complete"))
     $event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
     
-    /*
-        embeddings
-    */
+    $port:=8080
     
-    If (False)  //Hugging Face mode (recommended)
-        $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-        $URL:="dangvantuan/sentence-camembert-base"
-    Else   //HTTP mode (must be .zip)
-        $folder:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-        $URL:="https://github.com/miyako/TEI/releases/download/models/sentence-camembert-base.zip"
-    End if 
+    $model:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
+    $path:=""
+    $URL:="dangvantuan/sentence-camembert-base"
+    $embedding:=cs.event.huggingface.new($model; $URL; $path; "embedding")
     
-    $port:=8085
-    $TEI:=cs.TEI.TEI.new($port; $folder; $URL; {\
-    max_concurrent_requests: 512}; $event)
+    $options:={max_concurrent_requests: 512}
+    var $huggingfaces : cs.event.huggingfaces
+    $huggingfaces:=cs.event.huggingfaces.new([$embedding])
     
-End if   
+    $TEI:=cs.TEI.TEI.new($port; $huggingfaces; $homeFolder; $options; $event)
+    
+End if 
 ```
 
 Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:

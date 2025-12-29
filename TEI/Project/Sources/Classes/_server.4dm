@@ -11,16 +11,13 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 	var $command : Text
 	$command:=This:C1470.escape(This:C1470.executablePath)
 	
-	Case of 
-		: (Value type:C1509($option.model)=Is object:K8:27) && (OB Instance of:C1731($option.model; 4D:C1709.Folder)) && ($option.model.exists)
-			$command+=" --model-id "
-			$command+=This:C1470.escape(This:C1470.expand($option.model).path)
-		: (Value type:C1509($option.URL)=Is text:K8:3) && ($option.URL#"")
-			$command+=" --model-id "
-			$command+=This:C1470.escape($option.URL)
-		Else 
-			return 
-	End case 
+	If (Value type:C1509($option.embedding_model)=Is object:K8:27)\
+		 && (OB Instance of:C1731($option.embedding_model; 4D:C1709.Folder))\
+		 && ($option.embedding_model.exists)
+		$command+=" --model-id "
+		$command+=This:C1470.escape(This:C1470.expand($option.embedding_model).path)
+		$command+=" "
+	End if 
 	
 	var $arg : Object
 	var $valueType : Integer
@@ -28,7 +25,7 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 	
 	For each ($arg; OB Entries:C1720($option))
 		Case of 
-			: (["URL"; "model"; "model_id"; "help"; "version"].includes($arg.key))
+			: (["embedding_model"; "model_id"; "help"; "version"].includes($arg.key))
 				continue
 		End case 
 		$valueType:=Value type:C1509($arg.value)
