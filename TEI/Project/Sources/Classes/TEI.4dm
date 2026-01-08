@@ -10,7 +10,7 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	If (Not:C34($TEI.isRunning($port)))
 		
 		If (Not:C34(OB Instance of:C1731($HOME; 4D:C1709.Folder))) || (Not:C34($HOME.exists))
-			$HOME:=Folder:C1567(fk home folder:K87:24).folder(".TEI")
+			$HOME:=Folder:C1567(fk home folder:K87:24).folder(".safetensors")
 		End if 
 		
 		If ($huggingfaces=Null:C1517) || (Not:C34(OB Instance of:C1731($huggingfaces; cs:C1710.event.huggingfaces))) || ($huggingfaces.huggingfaces.length=0)

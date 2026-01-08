@@ -4,7 +4,7 @@ If (False:C215)
 	$TEI:=cs:C1710.TEI.new()  //default
 Else 
 	var $homeFolder : 4D:C1709.Folder
-	$homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".TEI")
+	$homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".safetensors")
 	var $URL : Text
 	var $port : Integer
 	
@@ -26,16 +26,22 @@ Function onTerminate($worker : 4D.SystemWorker; $params : Object)
 	$event.onResponse:=Formula:C1597(MESSAGE:C88(This:C1470.file.fullName+":download complete"))
 	$event.onTerminate:=Formula:C1597(LOG EVENT:C667(Into 4D debug message:K38:5; (["process"; $1.pid; "terminated!"].join(" "))))
 	
-	$port:=8085
+	$port:=8080
 	
-	$model:=$homeFolder.folder("dangvantuan/sentence-camembert-base")
-	$path:=""
-	$URL:="dangvantuan/sentence-camembert-base"
-	$embedding:=cs:C1710.event.huggingface.new($model; $URL; $path; "embedding")
+	$folder:=$homeFolder.folder("google/embeddinggemma-300m")
+	$path:="google/embeddinggemma-300m"
+	$URL:="google/embeddinggemma-300m"
+	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding")
 	
-	$options:={max_concurrent_requests: 512}
+	var $HF_TOKEN : Text
+	$f:=Folder:C1567(Folder:C1567("/PACKAGE/").platformPath; fk platform path:K87:2).parent.file("HuggingFace.token")
+	If ($f.exists)
+		$HF_TOKEN:=$f.getText()
+	End if 
+	
+	$options:={max_concurrent_requests: 512; pooling: "mean"; HF_TOKEN: $HF_TOKEN}
 	var $huggingfaces : cs:C1710.event.huggingfaces
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embedding])
+	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
 	
 	$TEI:=cs:C1710.TEI.new($port; $huggingfaces; $homeFolder; $options; $event)
 	

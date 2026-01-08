@@ -2,3 +2,4 @@ macOS/*
 TEI/userPreferences.*
 TEI/Data/*
 TEI/Project/DerivedData/*
+HuggingFace.token
