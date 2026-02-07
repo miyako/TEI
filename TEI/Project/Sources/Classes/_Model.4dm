@@ -33,7 +33,7 @@ Function onDownload($oid : Text)
 			 ? $downloaded.folder.folder($downloaded.path).parent : $downloaded.folder
 		
 		Case of 
-			: ($downloaded.domain="embedding")
+			: ($downloaded.domain#"")
 				This:C1470.options.embedding_model:=$model
 		End case 
 	End if 

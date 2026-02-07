@@ -33,6 +33,11 @@ Function onTerminate($worker : 4D.SystemWorker; $params : Object)
 	$URL:="google/embeddinggemma-300m"
 	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding")
 	
+	$folder:=$homeFolder.folder("BAAI/bge-reranker-v2-m3")
+	$path:="BAAI/bge-reranker-v2-m3"
+	$URL:="BAAI/bge-reranker-v2-m3"
+	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path; "rerank")
+	
 	var $HF_TOKEN : Text
 	$f:=Folder:C1567(Folder:C1567("/PACKAGE/").platformPath; fk platform path:K87:2).parent.file("HuggingFace.token")
 	If ($f.exists)
