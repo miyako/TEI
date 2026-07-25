@@ -105,7 +105,7 @@ $llama.terminate()
 
 #### AI Kit compatibility
 
-The API is compatibile with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
+The API is compatible with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
 
 |Class|API|Availability|
 |-|-|:-:|
