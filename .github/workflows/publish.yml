@@ -158,13 +158,18 @@ jobs:
           manifest.write_text(json.dumps(info, indent=2) + "\n")
           PY
           hdiutil create -format UDBZ -srcfolder "$PRODUCT_PATH" TEI.dmg
-          xcrun notarytool submit TEI.dmg --apple-id "$APPLE_ID" \
-            --team-id "$TEAM_ID" --password "$NOTARY_PASSWORD" \
-            --wait --timeout 30m --output-format json > notarization.json
-          cat notarization.json
-          test "$(jq -r .status notarization.json)" = Accepted
-          xcrun stapler staple TEI.dmg
+          bash scripts/notarize.sh TEI.dmg
           ditto -c -k --keepParent "$PRODUCT_PATH" TEI.zip
+
+      - name: Preserve Apple notarization diagnostics even on rejection
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: component-notarization
+          path: |
+            notarization.json
+            notarization-log.json
+          if-no-files-found: warn
 
       - name: Commit only component version and create a draft release
         env:
