@@ -27,6 +27,9 @@ CPU flags are explicit (`apple-m1` / baseline `x86-64`), never runner-specific
 `target-cpu=native`. Windows uses the static MSVC CRT; only allowlisted Windows
 system DLL imports are accepted. Mac binaries may link only Apple system libraries
 and frameworks. No Homebrew libraries, CUDA DLLs or ONNX Runtime downloads are needed.
+The Windows allowlist includes the OS-provided `bcryptprimitives.dll` used for
+[random-number generation](https://learn.microsoft.com/en-us/windows/win32/seccng/processprng);
+it must not be bundled as an application runtime dependency.
 
 Linux, Windows ARM64, CUDA, ROCm, ONNX Runtime, Python and gRPC are **not packaged**
 here. Upstream supports other deployment options; see its

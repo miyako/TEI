@@ -70,6 +70,26 @@ class NativeTests(unittest.TestCase):
             with patch.object(native, "run", return_value=imports), self.assertRaises(ValueError):
                 native.windows_dependencies("binary")
 
+    def test_windows_system_prng_dependency(self):
+        imports = (
+            "Microsoft (R) COFF/PE Dumper\n"
+            "  Image has the following dependencies:\n\n"
+            "    KERNEL32.dll\n"
+            "    bcryptprimitives.dll\n"
+            "    WS2_32.dll\n\n"
+            "  Summary\n"
+        )
+        with patch.object(native, "run", return_value=imports):
+            self.assertEqual(native.windows_dependencies("binary"),
+                             ["KERNEL32.dll", "bcryptprimitives.dll", "WS2_32.dll"])
+        for dll in ("BCryptPrimitives.dll", "bcryptprimitives.dll"):
+            with self.subTest(dll=dll), patch.object(native, "run", return_value=f"    {dll}\n"):
+                self.assertEqual(native.windows_dependencies("binary"), [dll])
+        for dll in ("bcryptprimitives-extra.dll", "vcruntime140.dll", "libcrypto-3-x64.dll"):
+            with self.subTest(dll=dll), patch.object(native, "run", return_value=f"    {dll}\n"):
+                with self.assertRaisesRegex(ValueError, "Unpackaged Windows dependency"):
+                    native.windows_dependencies("binary")
+
     def make_slices(self):
         slices = self.root / "slices"
         for target, (features, _) in native.TARGETS.items():
