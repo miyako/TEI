@@ -1,0 +1,6 @@
+{
+  "repository": "huggingface/text-embeddings-inference",
+  "tag": "v1.9.4",
+  "sha": "e80ef225ed0e6cb1717ce632a6a84b6cf211bb67",
+  "rust": "1.92.0"
+}

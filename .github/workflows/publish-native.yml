@@ -1,0 +1,64 @@
+name: Publish native CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Publish native assets from pinned, latest, or published upstream vX.Y.Z'
+        type: string
+        default: pinned
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-native-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require main for standalone publication
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" != refs/heads/main ]]; then
+            echo "::error::Standalone publication must run from main."
+            exit 1
+          fi
+
+  native:
+    needs: guard
+    uses: ./.github/workflows/build-native.yml
+    with:
+      source: ${{ inputs.source }}
+
+  release:
+    needs: native
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-packages
+          path: dist
+      - name: Create complete standalone release without replacing component latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          UPSTREAM_TAG: ${{ needs.native.outputs.upstream_tag }}
+          UPSTREAM_SHA: ${{ needs.native.outputs.upstream_sha }}
+          BUILDER_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum --check SHA256SUMS
+          test "$(find . -name '*.zip' | wc -l)" -eq 2
+          tag="native-$UPSTREAM_TAG-${BUILDER_SHA:0:12}"
+          gh release create "$tag" ./*.zip SHA256SUMS native-source.json \
+            --target "$BUILDER_SHA" --draft --title "Native TEI $UPSTREAM_TAG" \
+            --notes "Upstream: huggingface/text-embeddings-inference@$UPSTREAM_SHA. Builder: $BUILDER_SHA. macOS is ad-hoc signed, not notarized. See build-info.json inside each archive."
+          gh release edit "$tag" --draft=false --latest=false

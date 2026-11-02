@@ -1,0 +1,156 @@
+name: Build native CLI
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/build-native.yml'
+      - '.github/workflows/publish-native.yml'
+      - '.github/workflows/publish.yml'
+      - 'scripts/**'
+      - 'native-source.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-native.yml'
+      - '.github/workflows/publish-native.yml'
+      - 'scripts/**'
+      - 'native-source.json'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'pinned, latest stable release, or published upstream vX.Y.Z'
+        type: string
+        default: pinned
+        required: true
+  workflow_call:
+    inputs:
+      source:
+        description: Upstream stable release selection
+        type: string
+        default: pinned
+    outputs:
+      upstream_sha:
+        value: ${{ jobs.source.outputs.sha }}
+      upstream_tag:
+        value: ${{ jobs.source.outputs.tag }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    outputs:
+      sha: ${{ steps.source.outputs.sha }}
+      rust: ${{ steps.source.outputs.rust }}
+      tag: ${{ steps.source.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Resolve immutable upstream source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SELECTION: ${{ inputs.source || 'pinned' }}
+        run: python scripts/native.py resolve --source "$SOURCE_SELECTION"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-source
+          path: resolved-source.json
+          if-no-files-found: error
+
+  build:
+    needs: source
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            target: aarch64-apple-darwin
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+          - runner: windows-2022
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: huggingface/text-embeddings-inference
+          ref: ${{ needs.source.outputs.sha }}
+          path: upstream
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
+      - name: Install native build prerequisites
+        shell: bash
+        env:
+          RUST_VERSION: ${{ needs.source.outputs.rust }}
+        run: |
+          set -euo pipefail
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            choco install nasm --no-progress -y
+            echo 'C:\Program Files\NASM' >> "$GITHUB_PATH"
+          fi
+          cmake --version
+      - name: Build, inspect dependencies and smoke-test actual server
+        run: python scripts/native.py build --source-dir upstream --target ${{ matrix.target }} --resolved resolved-source.json --output slice
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: slice/
+          if-no-files-found: error
+
+  package:
+    needs: [source, build]
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-source
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-*-*'
+          path: slices
+      - name: Assemble complete universal macOS and Windows distribution
+        run: python scripts/native.py assemble --slices slices --resolved resolved-source.json --output dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-packages
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS
+            dist/native-source.json
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-component
+          path: dist/component/
+          if-no-files-found: error
