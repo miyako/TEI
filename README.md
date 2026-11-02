@@ -102,6 +102,9 @@ Standalone Mac binaries are **ad-hoc signed, not Developer ID signed or notarize
 Gatekeeper may block downloaded executables. Follow your organization's approval
 policy; do not disable Gatekeeper globally. The component Publish workflow requires
 Developer ID signing and an **Accepted** Apple notarization result.
+Component publication preserves Apple's submission response and detailed issue
+log as the `component-notarization` Actions artifact even when Apple rejects the
+image. A locally valid signature alone does not establish notarization acceptance.
 
 For 4D, install `TEI.zip` using the existing component/dependency mechanism. Its
 resource paths remain `TEI.4dbase/Resources/bin/macOS/text-embeddings-router` and
