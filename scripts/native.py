@@ -93,19 +93,21 @@ def mac_dependencies(binary):
 def windows_dependencies(binary):
     # The CRT is static; only OS DLLs are allowed. Fail closed on new dependencies.
     allowed = {
-        "advapi32.dll", "bcrypt.dll", "bcryptprimitives.dll", "crypt32.dll",
+        "advapi32.dll", "bcrypt.dll", "bcryptprimitives.dll", "combase.dll", "crypt32.dll",
         "dbghelp.dll", "iphlpapi.dll",
         "kernel32.dll", "msvcrt.dll", "ncrypt.dll", "ntdll.dll", "ole32.dll",
         "oleaut32.dll", "psapi.dll", "secur32.dll", "shell32.dll", "shlwapi.dll",
         "user32.dll", "userenv.dll", "version.dll", "ws2_32.dll",
     }
     imports = run("dumpbin", "/dependents", str(binary))
+    print(imports)
     dlls = re.findall(r"^\s+([A-Za-z0-9_.-]+\.dll)\s*$", imports, re.MULTILINE | re.IGNORECASE)
     if not dlls:
         raise ValueError("Could not inspect Windows runtime dependencies")
-    for dll in dlls:
-        if dll.lower() not in allowed and not dll.lower().startswith("api-ms-win-"):
-            raise ValueError(f"Unpackaged Windows dependency: {dll}")
+    unexpected = [dll for dll in dlls
+                  if dll.lower() not in allowed and not dll.lower().startswith("api-ms-win-")]
+    if unexpected:
+        raise ValueError(f"Unpackaged Windows dependency: {', '.join(unexpected)}")
     return dlls
 
 

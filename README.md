@@ -12,6 +12,11 @@ The default source is upstream **v1.9.4**, commit
 (latest stable release checked 2026-11-02). [native-source.json](native-source.json)
 pins the release, commit and upstream Rust **1.92.0** toolchain. Cargo uses
 upstream's checked-in `Cargo.lock` with `--locked`; no upstream source patches are applied.
+CI checks out upstream with `core.autocrlf=false` and `core.eol=lf` on every
+platform so dependency-lock and license bytes stay identical across targets.
+The regression suite runs on all three native runners before compilation; it
+checks CRLF conversion explicitly and tests executable permissions according to
+the host's filesystem semantics.
 
 | Distribution | Native build target | Backend / explicit Cargo features | Minimum runtime |
 |---|---|---|---|
@@ -27,9 +32,13 @@ CPU flags are explicit (`apple-m1` / baseline `x86-64`), never runner-specific
 `target-cpu=native`. Windows uses the static MSVC CRT; only allowlisted Windows
 system DLL imports are accepted. Mac binaries may link only Apple system libraries
 and frameworks. No Homebrew libraries, CUDA DLLs or ONNX Runtime downloads are needed.
-The Windows allowlist includes the OS-provided `bcryptprimitives.dll` used for
-[random-number generation](https://learn.microsoft.com/en-us/windows/win32/seccng/processprng);
-it must not be bundled as an application runtime dependency.
+The Windows allowlist includes OS-provided `bcryptprimitives.dll` for
+[random-number generation](https://learn.microsoft.com/en-us/windows/win32/seccng/processprng)
+and `combase.dll` for the
+[Windows Runtime](https://learn.microsoft.com/en-us/windows/win32/api/roapi/nf-roapi-roinitialize).
+These must not be bundled as application runtime dependencies. Inspection logs
+the full import list and reports all unexpected DLLs together, without relaxing
+the exact system-DLL allowlist.
 
 Linux, Windows ARM64, CUDA, ROCm, ONNX Runtime, Python and gRPC are **not packaged**
 here. Upstream supports other deployment options; see its

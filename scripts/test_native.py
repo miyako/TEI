@@ -2,6 +2,7 @@ import contextlib
 import io
 import json
 import os
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -106,6 +107,38 @@ class NativeTests(unittest.TestCase):
             })
         return slices
 
+    def test_windows_combase_and_all_unexpected_dependencies(self):
+        with patch.object(native, "run", return_value="    COMBASE.dll\n    bcryptprimitives.dll\n"):
+            self.assertEqual(native.windows_dependencies("binary"),
+                             ["COMBASE.dll", "bcryptprimitives.dll"])
+        imports = "    combase-extra.dll\n    vcruntime140.dll\n    libcrypto-3-x64.dll\n"
+        with patch.object(native, "run", return_value=imports), \
+                self.assertRaisesRegex(ValueError, "combase-extra.dll, vcruntime140.dll, libcrypto-3-x64.dll"):
+            native.windows_dependencies("binary")
+
+    def test_upstream_checkout_preserves_lock_and_license_bytes(self):
+        repo = self.root / "upstream"
+        repo.mkdir()
+        def git(*args, env=None):
+            return subprocess.check_output(["git", "-C", str(repo), *args], env=env)
+        git("init", "--quiet")
+        git("config", "core.autocrlf", "true")
+        git("config", "core.eol", "crlf")
+        for name in ("Cargo.lock", "LICENSE", "control.txt"):
+            (repo / name).write_bytes(b"first\nsecond\n")
+        git("-c", "core.autocrlf=false", "add", ".")
+        for name in ("Cargo.lock", "LICENSE", "control.txt"):
+            (repo / name).unlink()
+        git("checkout-index", "--all")
+        self.assertEqual((repo / "control.txt").read_bytes(), b"first\r\nsecond\r\n")
+        env = os.environ.copy()
+        env.update(GIT_CONFIG_COUNT="2", GIT_CONFIG_KEY_0="core.autocrlf",
+                   GIT_CONFIG_VALUE_0="false", GIT_CONFIG_KEY_1="core.eol",
+                   GIT_CONFIG_VALUE_1="lf")
+        git("checkout-index", "--force", "--all", env=env)
+        for name in ("Cargo.lock", "LICENSE"):
+            self.assertEqual((repo / name).read_bytes(), git("show", f":{name}"))
+
     def test_incomplete_or_corrupt_assets_never_package(self):
         slices = self.make_slices()
         binary = slices / "x86_64-pc-windows-msvc" / "text-embeddings-router.exe"
@@ -140,7 +173,8 @@ class NativeTests(unittest.TestCase):
         native.archive(folder, self.root / "package.zip")
         with zipfile.ZipFile(self.root / "package.zip") as zipped:
             self.assertEqual(zipped.namelist(), ["text-embeddings-router"])
-            self.assertEqual((zipped.getinfo(binary.name).external_attr >> 16) & 0o777, 0o755)
+            if os.name != "nt":
+                self.assertEqual((zipped.getinfo(binary.name).external_attr >> 16) & 0o777, 0o755)
 
     def test_complete_distribution_layout_hashes_and_permissions(self):
         slices = self.make_slices()
@@ -153,8 +187,10 @@ class NativeTests(unittest.TestCase):
                 return "binary:\n\t/usr/lib/libSystem.B.dylib (version)"
             return ""
 
-        with patch.object(native, "run", side_effect=fake_run), patch.object(native, "smoke"):
+        with patch.object(native, "run", side_effect=fake_run), patch.object(native, "smoke"), \
+                patch.object(Path, "chmod", autospec=True, side_effect=Path.chmod) as chmod:
             native.assemble(slices, self.lock, output)
+            chmod.assert_called_once_with(output.resolve() / "component/macOS/text-embeddings-router", 0o755)
         archives = sorted(output.glob("*.zip"))
         self.assertEqual([path.name for path in archives], [
             "tei-v1.9.4-macos-universal.zip", "tei-v1.9.4-windows-x64.zip"])
@@ -166,7 +202,7 @@ class NativeTests(unittest.TestCase):
                 name = "text-embeddings-router" + (".exe" if "windows" in path.name else "")
                 self.assertEqual(manifest["packaged_binary_sha256"],
                                  native.hashlib.sha256(zipped.read(name)).hexdigest())
-                if "macos" in path.name:
+                if "macos" in path.name and os.name != "nt":
                     self.assertEqual((zipped.getinfo(name).external_attr >> 16) & 0o777, 0o755)
             self.assertIn(f"{native.digest(path)}  {path.name}",
                           (output / "SHA256SUMS").read_text())
