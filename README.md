@@ -104,7 +104,14 @@ policy; do not disable Gatekeeper globally. The component Publish workflow requi
 Developer ID signing and an **Accepted** Apple notarization result.
 Component publication preserves Apple's submission response and detailed issue
 log as the `component-notarization` Actions artifact even when Apple rejects the
-image. A locally valid signature alone does not establish notarization acceptance.
+image. The artifact also includes `component-signing.json`: final signed-byte
+hashes and architectures for every shipped Mach-O, including generated
+`Libraries/lib4d-*.dylib` files, not just the embedded server. Each code object
+is explicitly signed inside out with Developer ID, secure timestamp and hardened
+runtime, retaining existing entitlements. Every architecture is checked for the
+expected Apple team, timestamp and runtime flags before archiving; the DMG
+container is signed separately. A locally valid signature alone does not
+establish notarization acceptance.
 
 For 4D, install `TEI.zip` using the existing component/dependency mechanism. Its
 resource paths remain `TEI.4dbase/Resources/bin/macOS/text-embeddings-router` and
@@ -137,7 +144,7 @@ release tag fails rather than silently replacing assets.
 [Publish](.github/workflows/publish.yml) retains its existing component-source push
 triggers and manual patch/minor/major and self-hosted options; resource changes also
 trigger it. It calls the native workflow with the **pinned** source, downloads the
-complete resource artifact, builds the 4D component, signs its Mac server, notarizes
+complete resource artifact, builds the 4D component, signs all its Mac code, notarizes
 the DMG, and publishes `TEI.zip` / `TEI.dmg`. Apple signing/notarization secrets and
 the existing tool4d setup are required. Self-hosted mode applies to component
 compilation/signing only; native source builds still run on the hosted matrix.
