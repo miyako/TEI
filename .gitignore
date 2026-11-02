@@ -3,3 +3,5 @@ TEI/userPreferences.*
 TEI/Data/*
 TEI/Project/DerivedData/*
 HuggingFace.token
+__pycache__/
+resolved-source.json
