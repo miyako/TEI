@@ -123,7 +123,7 @@ Else
     */
     
     $event.onError:=Formula(ALERT($2.message))
-    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
+    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" launch requested"))  //not yet ready; poll /health
     $event.onData:=Formula(LOG EVENT(Into 4D debug message; This.file.fullName+":"+String((This.range.end/This.range.length)*100; "###.00%")))
     $event.onData:=Formula(MESSAGE(This.file.fullName+":"+String((This.range.end/This.range.length)*100; "###.00%")))
     $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; This.file.fullName+":download complete"))
@@ -150,6 +150,10 @@ Unless the server is already running (in which case the constructor does nothing
 
 1. The specified model is downloaded via HTTP
 2. The `text-embeddings-router` program is started
+
+`onSuccess` means the launch was requested, not that the server is ready; poll `/health` before sending requests.
+
+If there is nothing to download (none of the `huggingfaces` resolves to a file, for example because the repository is gated or the URL is invalid), the server is started with `options.embedding_model` when it is an existing local model folder. Otherwise `event.onError` receives an error with code `2` and the server is not started. Offline startup (Hugging Face unreachable) is unchanged. The server is launched at most once per constructor call. `event` may be `Null`, in which case no callbacks are delivered.
 
 Now you can test the server:
 

@@ -1,4 +1,5 @@
 property embedding_model : 4D:C1709.Folder
+property _started : Boolean
 
 Class extends _models
 
@@ -40,8 +41,30 @@ Function onDownload($oid : Text)
 	
 	Super:C1706.onDownload($oid)
 	
+Function _onNothingToDownload()
+	
+	If (OB Instance of:C1731(This:C1470.options.embedding_model; 4D:C1709.Folder))
+		If (This:C1470.options.embedding_model.exists)
+			This:C1470.start()
+			return 
+		End if 
+	End if 
+	var $message : Text
+	$message:="no model to load: nothing to download and options.embedding_model is not an existing folder"
+	If (OB Instance of:C1731(This:C1470.options.embedding_model; 4D:C1709.Folder)) || (OB Instance of:C1731(This:C1470.options.embedding_model; 4D:C1709.File))
+		$message+=": "+This:C1470.options.embedding_model.path
+	End if 
+	LOG EVENT:C667(Into 4D debug message:K38:5; "TEI: "+$message)
+	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+		This:C1470.event.onError.call(This:C1470; This:C1470.options; cs:C1710.event.error.new(2; $message; cs:C1710.event.models.new()))
+	End if 
+	
 Function start()
 	
+	If (This:C1470._started)
+		return 
+	End if 
+	This:C1470._started:=True:C214
 	var $TEI : cs:C1710.workers.worker
 	$TEI:=cs:C1710.workers.worker.new(cs:C1710._server)
 	$TEI.start(This:C1470.options.port; This:C1470.options)
