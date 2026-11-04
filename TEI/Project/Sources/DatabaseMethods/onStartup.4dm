@@ -19,7 +19,7 @@ Function onTerminate($worker : 4D.SystemWorker; $params : Object)
 */
 	
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
-	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
+	$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" launch requested"))  //not yet ready; poll /health
 	$event.onData:=Formula:C1597(LOG EVENT:C667(Into 4D debug message:K38:5; This:C1470.file.fullName+":"+String:C10((This:C1470.range.end/This:C1470.range.length)*100; "###.00%")))
 	$event.onData:=Formula:C1597(MESSAGE:C88(This:C1470.file.fullName+":"+String:C10((This:C1470.range.end/This:C1470.range.length)*100; "###.00%")))
 	$event.onResponse:=Formula:C1597(LOG EVENT:C667(Into 4D debug message:K38:5; This:C1470.file.fullName+":download complete"))
@@ -36,7 +36,8 @@ Function onTerminate($worker : 4D.SystemWorker; $params : Object)
 	$folder:=$homeFolder.folder("BAAI/bge-reranker-v2-m3")
 	$path:="BAAI/bge-reranker-v2-m3"
 	$URL:="BAAI/bge-reranker-v2-m3"
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path; "rerank")
+	//one server serves one model: start a second instance on another port to use the reranker
+	$reranker:=cs:C1710.event.huggingface.new($folder; $URL; $path; "rerank")
 	
 	var $HF_TOKEN : Text
 	$f:=Folder:C1567(Folder:C1567("/PACKAGE/").platformPath; fk platform path:K87:2).parent.file("HuggingFace.token")

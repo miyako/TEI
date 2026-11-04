@@ -12,9 +12,11 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	This:C1470.event:=$event
 	This:C1470._onResponse:=$formula
 	This:C1470.options:=$options#Null:C1517 ? $options : {}
-	This:C1470.options.onTerminate:=This:C1470.event.onTerminate
-	This:C1470.options.onStdErr:=This:C1470.event.onStdErr
-	This:C1470.options.onStdOut:=This:C1470.event.onStdOut
+	If (This:C1470.event#Null:C1517)
+		This:C1470.options.onTerminate:=This:C1470.event.onTerminate
+		This:C1470.options.onStdErr:=This:C1470.event.onStdErr
+		This:C1470.options.onStdOut:=This:C1470.event.onStdOut
+	End if 
 	This:C1470.options.port:=$port
 	This:C1470.offline:=False:C215
 	
@@ -29,8 +31,20 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	$BRANCH:="main"
 	var $components : Collection
 	
+	//the tree API needs the token for gated or private repositories
+	var $headers : Object
+	$headers:={}
+	If (Value type:C1509(This:C1470.options.HF_TOKEN)=Is text:K8:3) && (This:C1470.options.HF_TOKEN#"")
+		$headers.Authorization:="Bearer "+This:C1470.options.HF_TOKEN
+	End if 
+	
 	While (This:C1470.huggingfaces.huggingfaces.length#0)
 		$huggingface:=This:C1470.huggingfaces.huggingfaces.shift()
+		If (This:C1470._models.length#0)
+			//one server process serves one model; start another instance on another port for more
+			LOG EVENT:C667(Into 4D debug message:K38:5; "TEI: ignored "+String:C10($huggingface.URL)+"; only "+This:C1470._models.first()+" is served")
+			continue
+		End if 
 		Case of 
 			: (OB Instance of:C1731($huggingface.folder; 4D:C1709.Folder)) || (OB Instance of:C1731($huggingface.folder; 4D:C1709.File))
 				Case of 
@@ -50,7 +64,7 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 						continue
 				End case 
 				var $request : 4D:C1709.HTTPRequest
-				$request:=4D:C1709.HTTPRequest.new($API).wait()
+				$request:=4D:C1709.HTTPRequest.new($API; {headers: $headers}).wait()
 				If ($request.response.status=Null:C1517)
 					This:C1470._models.push([$USER; $REPO].join("/"))
 					This:C1470.options.embedding_model:=$huggingface.folder
@@ -71,7 +85,7 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 									path: $1.value.path; \
 									oid: $1.value.oid; \
 									folder: $5}); $USER; $REPO; $BRANCH; $huggingface.folder; $huggingface.domain)
-								This:C1470.files:=This:C1470.files.combine($resources.query("type == :1"; "file"))
+								This:C1470.files:=This:C1470.files.combine(This:C1470._selectFiles($resources.query("type == :1"; "file")))
 								This:C1470._models.push([$USER; $REPO].join("/"))
 							: (OB Instance of:C1731($huggingface.folder; 4D:C1709.File))
 								var $file : Object
@@ -81,8 +95,6 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 								End if 
 								$file.domain:=$huggingface.domain
 								$file.folder:=$huggingface.folder
-								$file.folder:=$huggingface.folder
-								$file.domain:=$huggingface.domain
 								$file.USER:=$USER
 								$file.REPO:=$REPO
 								$file.BRANCH:=$BRANCH
@@ -97,6 +109,11 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	End while 
 	
 Function download()
+	
+	If (This:C1470.files.length=0)
+		This:C1470._onNothingToDownload()
+		return 
+	End if 
 	
 	For each ($file; This:C1470.files)
 		If ($file.folder.exists)\
@@ -123,6 +140,14 @@ Function onDownload($oid : Text)
 	If (This:C1470.files.length=0)
 		This:C1470.start()
 	End if 
+	
+Function _selectFiles($files : Collection) : Collection
+	//virtual
+	return $files
+	
+Function _onNothingToDownload()
+	//virtual
+	This:C1470.start()
 	
 Function models() : cs:C1710.event.models
 	//virtual
