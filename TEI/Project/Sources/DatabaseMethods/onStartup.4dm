@@ -36,7 +36,8 @@ Function onTerminate($worker : 4D.SystemWorker; $params : Object)
 	$folder:=$homeFolder.folder("BAAI/bge-reranker-v2-m3")
 	$path:="BAAI/bge-reranker-v2-m3"
 	$URL:="BAAI/bge-reranker-v2-m3"
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path; "rerank")
+	//one server serves one model: start a second instance on another port to use the reranker
+	$reranker:=cs:C1710.event.huggingface.new($folder; $URL; $path; "rerank")
 	
 	var $HF_TOKEN : Text
 	$f:=Folder:C1567(Folder:C1567("/PACKAGE/").platformPath; fk platform path:K87:2).parent.file("HuggingFace.token")

@@ -40,6 +40,11 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	
 	While (This:C1470.huggingfaces.huggingfaces.length#0)
 		$huggingface:=This:C1470.huggingfaces.huggingfaces.shift()
+		If (This:C1470._models.length#0)
+			//one server process serves one model; start another instance on another port for more
+			LOG EVENT:C667(Into 4D debug message:K38:5; "TEI: ignored "+String:C10($huggingface.URL)+"; only "+This:C1470._models.first()+" is served")
+			continue
+		End if 
 		Case of 
 			: (OB Instance of:C1731($huggingface.folder; 4D:C1709.Folder)) || (OB Instance of:C1731($huggingface.folder; 4D:C1709.File))
 				Case of 
@@ -80,7 +85,7 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 									path: $1.value.path; \
 									oid: $1.value.oid; \
 									folder: $5}); $USER; $REPO; $BRANCH; $huggingface.folder; $huggingface.domain)
-								This:C1470.files:=This:C1470.files.combine($resources.query("type == :1"; "file"))
+								This:C1470.files:=This:C1470.files.combine(This:C1470._selectFiles($resources.query("type == :1"; "file")))
 								This:C1470._models.push([$USER; $REPO].join("/"))
 							: (OB Instance of:C1731($huggingface.folder; 4D:C1709.File))
 								var $file : Object
@@ -135,6 +140,10 @@ Function onDownload($oid : Text)
 	If (This:C1470.files.length=0)
 		This:C1470.start()
 	End if 
+	
+Function _selectFiles($files : Collection) : Collection
+	//virtual
+	return $files
 	
 Function _onNothingToDownload()
 	//virtual
