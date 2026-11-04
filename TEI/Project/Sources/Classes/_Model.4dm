@@ -30,8 +30,8 @@ Function onDownload($oid : Text)
 	
 	If ($downloaded#Null:C1517)
 		var $model : Object
-		$model:=OB Instance of:C1731($downloaded.folder; 4D:C1709.Folder)\
-			 ? $downloaded.folder.folder($downloaded.path).parent : $downloaded.folder
+		//the destination folder is the model root even when the file is in a subfolder (e.g. 1_Pooling/config.json)
+		$model:=$downloaded.folder
 		
 		Case of 
 			: (This:C1470.options.embedding_model=Null:C1517)

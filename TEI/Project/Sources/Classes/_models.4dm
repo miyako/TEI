@@ -31,6 +31,13 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 	$BRANCH:="main"
 	var $components : Collection
 	
+	//the tree API needs the token for gated or private repositories
+	var $headers : Object
+	$headers:={}
+	If (Value type:C1509(This:C1470.options.HF_TOKEN)=Is text:K8:3) && (This:C1470.options.HF_TOKEN#"")
+		$headers.Authorization:="Bearer "+This:C1470.options.HF_TOKEN
+	End if 
+	
 	While (This:C1470.huggingfaces.huggingfaces.length#0)
 		$huggingface:=This:C1470.huggingfaces.huggingfaces.shift()
 		Case of 
@@ -52,7 +59,7 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 						continue
 				End case 
 				var $request : 4D:C1709.HTTPRequest
-				$request:=4D:C1709.HTTPRequest.new($API).wait()
+				$request:=4D:C1709.HTTPRequest.new($API; {headers: $headers}).wait()
 				If ($request.response.status=Null:C1517)
 					This:C1470._models.push([$USER; $REPO].join("/"))
 					This:C1470.options.embedding_model:=$huggingface.folder
@@ -83,8 +90,6 @@ Class constructor($port : Integer; $huggingfaces : cs:C1710.event.huggingfaces; 
 								End if 
 								$file.domain:=$huggingface.domain
 								$file.folder:=$huggingface.folder
-								$file.folder:=$huggingface.folder
-								$file.domain:=$huggingface.domain
 								$file.USER:=$USER
 								$file.REPO:=$REPO
 								$file.BRANCH:=$BRANCH
