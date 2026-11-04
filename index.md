@@ -180,10 +180,14 @@ $responseEmbeddings:=$AIClient.embeddings.create($text)
 Finally to terminate the server:
 
 ```4d
+// TEI.new() with no arguments does nothing if a server is already running on 8080;
+// otherwise it downloads and launches the default model (dangvantuan/sentence-camembert-base)
 var $TEI : cs.TEI.TEI
 $TEI:=cs.TEI.TEI.new()
 $TEI.terminate()
 ```
+
+`cs.TEI.TEI.new()` with no arguments is not a passive handle. If a server is already running on port 8080, the constructor does nothing. Otherwise it downloads (if needed) and launches the default model on 8080.
 
 #### AI Kit compatibility
 
