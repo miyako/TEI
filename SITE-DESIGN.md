@@ -13,7 +13,7 @@ Local implementation: [site styles](assets/css/style.scss),
 from generated Pages.
 
 Site branding: `assets/tei.png` is an unchanged copy of the 4D project's
-`TEI/icon.png`, used for the sidebar, home-page engine icon, favicon, and structured
+`TEI/logo.png`, used for the sidebar, home-page engine icon, favicon, and structured
 metadata. Accent: green (Uzu/ONNX palette).
 
 The previous single-page documentation now lives in `guide.md` with its text
