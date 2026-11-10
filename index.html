@@ -1,0 +1,167 @@
+---
+layout: default
+title: Local embeddings. Ready for semantic search.
+description: Run Hugging Face Text Embeddings Inference on your own machine from 4D 20+. Download the component, embed a first sentence over HTTP or connect AI Kit.
+home: true
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Text Embeddings Inference / Candle / 4D</p>
+    <h1 id="hero-title">Local embeddings. <span>Ready for semantic search.</span></h1>
+    <p class="lede">Bring Hugging Face Text Embeddings Inference into your application. Serve BERT, GTE, Nomic, Qwen3 and other embedding models from full-precision weights, over an OpenAI-compatible HTTP endpoint, without an NVIDIA GPU.</p>
+    <div class="actions">
+      <a class="button primary" href="#downloads">Download the component <span aria-hidden="true">&darr;</span></a>
+      <a class="button" href="#quickstart">Embed a first sentence <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </div>
+  <div class="engine-panel" role="group" aria-label="Your application connects over local HTTP on port 8080 to Text Embeddings Inference, which loads one Safetensors embedding model from a Hugging Face model folder on your machine">
+    <div class="panel-top"><span class="panel-label">The local stack</span><span class="local-tag">On your machine</span></div>
+    <div class="app-node"><span class="node-symbol" aria-hidden="true">4D</span><div><strong>Your application</strong><span>AI Kit or your own HTTP client</span></div></div>
+    <div class="connection">HTTP / 127.0.0.1:8080</div>
+    <div class="engine-node"><img src="{{ site.logo | relative_url }}" width="52" height="52" alt=""><div><strong>Text Embeddings Inference</strong><span>text-embeddings-router / Candle</span></div></div>
+    <div class="connection">loads</div>
+    <div class="model-node"><span class="file-mark" aria-hidden="true">.safetensors</span><div><strong>One embedding model</strong><span>Loaded from a Hugging Face model folder; one model per server</span></div></div>
+    <div class="panel-bottom"><span class="status-dot" aria-hidden="true"></span> Embeddings over HTTP. Poll <code>/health</code> for readiness.</div>
+  </div>
+  <p class="hero-note">Apple Silicon (Metal) &middot; Intel Mac (CPU) &middot; Windows 10/11 x64 (CPU) &middot; Model weights downloaded separately</p>
+</section>
+
+<div class="capability-strip" aria-label="Project capabilities">
+  <span><strong>Candle + Metal</strong> on Apple Silicon</span>
+  <span><strong>Universal macOS</strong> and Windows x64</span>
+  <span><strong>4D 20+</strong> component integration</span>
+  <span><strong>Local HTTP</strong> OpenAI-style embeddings</span>
+</div>
+
+<section class="page-section" aria-labelledby="paths-title">
+  <p class="eyebrow">Choose your starting point</p>
+  <h2 id="paths-title">One engine. Two ways in.</h2>
+  <div class="cards">
+    <a class="card" href="{{ '/guide.html#usage' | relative_url }}">
+      <span class="card-number">01 / Build with 4D</span>
+      <h3>Make it part of your app <span aria-hidden="true">&nearr;</span></h3>
+      <p>Install the component. Let 4D download only the files the bundled backend can load, then start the router in the background.</p>
+      <span class="card-link">Explore the component &rarr;</span>
+    </a>
+    <a class="card" href="#quickstart">
+      <span class="card-number">02 / Start with HTTP</span>
+      <h3>Talk directly to the server <span aria-hidden="true">&nearr;</span></h3>
+      <p>Run <code>text-embeddings-router</code> without 4D. Name a model, wait for <code>/health</code> and request an embedding with curl.</p>
+      <span class="card-link">Embed a first sentence &rarr;</span>
+    </a>
+  </div>
+</section>
+
+<section class="page-section" id="requirements" aria-labelledby="requirements-title">
+  <p class="eyebrow">Before you begin</p>
+  <h2 id="requirements-title">No NVIDIA GPU required.</h2>
+  <div class="table-wrap">
+    <table>
+      <caption>Platforms, backends and model requirements</caption>
+      <thead><tr><th scope="col">You bring</th><th scope="col">What to know</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">An Apple Silicon Mac</th><td>macOS 14 or newer. Candle with Metal acceleration.</td></tr>
+        <tr><th scope="row">Or an Intel Mac</th><td>macOS 14 or newer. Candle with the Accelerate CPU backend, in the same universal build.</td></tr>
+        <tr><th scope="row">Or a Windows PC</th><td>Windows 10/11 x64. Candle CPU with a static MSVC runtime.</td></tr>
+        <tr><th scope="row">A compatible embedding model</th><td>Safetensors weights, not GGUF or ONNX. Full precision needs more memory than quantized engines; allow for startup peaks.</td></tr>
+        <tr><th scope="row">4D 20+ for integration</th><td>Install the TEI component. Direct HTTP use does not require 4D.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Linux, Windows ARM64, CUDA/ROCm, ONNX Runtime, Python and gRPC are not packaged here. For lighter semantic search, a quantized GGUF engine such as <a href="https://github.com/miyako/llama-cpp">llama.cpp</a> may be a better fit.</p>
+  <aside class="callout"><strong>Keep local inference local.</strong><p>Bind to <code>127.0.0.1</code> with <code>--hostname 127.0.0.1</code>. Do not expose an unauthenticated embedding server to an untrusted network.</p></aside>
+</section>
+
+<section class="page-section" id="downloads" aria-labelledby="downloads-title">
+  <p class="eyebrow">Ready to run</p>
+  <h2 id="downloads-title">Download. Keep the whole engine.</h2>
+  <div class="release-panel">
+    <div>
+      <p class="eyebrow">Component release</p>
+      <h3>TEI for 4D {{ site.component_version }}</h3>
+      <p>Includes <code>text-embeddings-router</code> built from upstream <strong>v1.9.4</strong> with Rust 1.92.0 and locked Cargo dependencies. Component publication requires Developer ID signing and Accepted Apple notarization.</p>
+      <p>Copy the component into your database's <code>Components</code> folder.</p>
+    </div>
+    <div>
+      <div class="actions">
+        <a class="button primary" href="{{ site.github.repository_url }}/releases/download/{{ site.component_version }}/TEI.dmg">Download DMG <span aria-hidden="true">&darr;</span></a>
+        <a class="button" href="{{ site.github.repository_url }}/releases/download/{{ site.component_version }}/TEI.zip">Download ZIP <span aria-hidden="true">&darr;</span></a>
+      </div>
+      <div class="release-links">
+        <a href="{{ site.github.repository_url }}/releases/tag/{{ site.component_version }}">Release notes</a>
+        <a href="{{ site.github.repository_url }}/releases/download/{{ site.component_version }}/notarization.json">Notarization report</a>
+        <a href="{{ site.github.repository_url }}/releases/download/{{ site.component_version }}/component-signing.json">Signing report</a>
+      </div>
+    </div>
+  </div>
+  <p>Standalone native ZIPs (<code>tei-v1.9.4-macos-universal.zip</code>, <code>tei-v1.9.4-windows-x64.zip</code>) appear on the <a href="{{ site.github.repository_url }}/releases">Releases page</a> only after an authorized native publication. Verify them against the release's <code>SHA256SUMS</code>; standalone Mac servers are ad-hoc signed, not notarized.</p>
+  <p>See <a href="{{ '/guide.html#native-server-distributions' | relative_url }}">native server distributions</a> for what each archive contains.</p>
+</section>
+
+<section class="page-section" id="quickstart" aria-labelledby="quickstart-title">
+  <p class="eyebrow">From download to vector</p>
+  <h2 id="quickstart-title">Your first local embedding.</h2>
+  <p>This path runs the router directly, without 4D. The first start downloads the model from Hugging Face; for offline use, pass a complete local model directory to <code>--model-id</code>.</p>
+  <div class="step-heading"><span class="step-number">01</span><h3>Start the engine on localhost</h3><span class="code-language">Shell / macOS</span></div>
+{% highlight shell %}
+chmod +x ./text-embeddings-router
+./text-embeddings-router --model-id sentence-transformers/all-MiniLM-L6-v2 \
+  --hostname 127.0.0.1 --port 8080 --dtype float32
+{% endhighlight %}
+  <p>Use the <code>HF_TOKEN</code> environment variable for gated models.</p>
+  <div class="step-heading"><span class="step-number">02</span><h3>Wait until it is healthy</h3><span class="code-language">Shell / macOS</span></div>
+{% highlight shell %}
+curl --fail http://127.0.0.1:8080/health
+{% endhighlight %}
+  <div class="step-heading"><span class="step-number">03</span><h3>Request an embedding</h3><span class="code-language">Shell / macOS</span></div>
+{% highlight shell %}
+curl --fail http://127.0.0.1:8080/v1/embeddings \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"sentence-transformers/all-MiniLM-L6-v2","input":"The quick brown fox."}'
+{% endhighlight %}
+  <p>The PowerShell equivalent is in the <a href="{{ '/guide.html#standalone-usage' | relative_url }}">standalone usage guide</a>.</p>
+</section>
+
+<section class="page-section" id="api" aria-labelledby="api-title">
+  <p class="eyebrow">Connect with tools you know</p>
+  <h2 id="api-title">A familiar API. A local address.</h2>
+  <p>Point AI Kit's OpenAI client at your running server and create embeddings.</p>
+{% highlight 4d %}
+var $AIClient : cs.AIKit.OpenAI
+$AIClient:=cs.AIKit.OpenAI.new()
+$AIClient.baseURL:="http://127.0.0.1:8080/v1"
+
+var $responseEmbeddings : cs.AIKit.OpenAIEmbeddingsResult
+$responseEmbeddings:=$AIClient.embeddings.create("The quick brown fox jumps over the lazy dog.")
+{% endhighlight %}
+  <div class="table-wrap">
+    <table>
+      <caption>Text Embeddings Inference endpoint compatibility</caption>
+      <thead><tr><th scope="col">Capability</th><th scope="col">Endpoint</th><th scope="col">What to know</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Embeddings</th><td><code>/v1/embeddings</code></td><td><span class="support">Supported</span></td></tr>
+        <tr><th scope="row">Model discovery</th><td><code>/v1/models</code></td><td>Not provided. Upstream v1.9.4 exposes model metadata at <code>/info</code>; configure the model explicitly in clients.</td></tr>
+        <tr><th scope="row">Readiness</th><td><code>/health</code></td><td>Server-specific; poll before sending requests.</td></tr>
+        <tr><th scope="row">Chat, images, moderation, files</th><td><code>/v1/chat/completions</code>, <code>/v1/images/generations</code>, <code>/v1/moderations</code>, <code>/v1/files</code></td><td>Not provided.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a class="text-link" href="{{ '/guide.html#ai-kit-compatibility' | relative_url }}">See AI Kit compatibility &rarr;</a>
+</section>
+
+<section class="next-panel" aria-labelledby="next-title">
+  <div><p class="eyebrow">Go a little further</p><h2 id="next-title">From first vector to your application.</h2><p>Manage downloads and the router from 4D, or inspect exactly how the native distribution was built.</p></div>
+  <div class="next-links">
+    <a href="{{ '/guide.html#usage' | relative_url }}">4D lifecycle &amp; events <span aria-hidden="true">&rarr;</span></a>
+    <a href="{{ '/guide.html#native-server-distributions' | relative_url }}">Native server distributions <span aria-hidden="true">&rarr;</span></a>
+    <a href="{{ '/guide.html#rebuilds-and-release-provenance' | relative_url }}">Rebuilds &amp; release provenance <span aria-hidden="true">&rarr;</span></a>
+  </div>
+</section>
+
+<script>
+  // Sections that used to live on this page moved to the guide; keep old links working.
+  (function () {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (id && !document.getElementById(id)) location.replace("{{ '/guide.html' | relative_url }}#" + encodeURIComponent(id));
+  })();
+</script>
