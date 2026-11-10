@@ -1,15 +1,18 @@
 ---
 layout: default
+title: Use with 4D
+description: "Install and run Text Embeddings Inference from 4D: native distributions, standalone use, the 4D class and AI Kit."
+guide: true
 ---
 
 ![version](https://img.shields.io/badge/version-20%2B-E23089)
 ![platform](https://img.shields.io/static/v1?label=platform&message=mac-intel%20|%20mac-arm%20|%20win-64&color=blue)
-[![license](https://img.shields.io/github/license/miyako/TEI)](LICENSE)
+[![license](https://img.shields.io/github/license/miyako/TEI)](https://github.com/miyako/TEI/blob/main/LICENSE)
 ![downloads](https://img.shields.io/github/downloads/miyako/TEI/total)
 
 # Use Text Embeddings Inference from 4D
 
-#### Abstract
+## Abstract
 
 [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) is a high-performance extraction framework and server that supports a wide variety of embedding models such as Nomic, BERT, CamemBERT, XLM-RoBERTa models with absolute positions; JinaBERT model with Alibi positions; Mistral, Alibaba GTE, Qwen2 models with Rope positions; MPNet, ModernBERT, Qwen3, and Gemma3.
 
@@ -23,11 +26,15 @@ The source build defaults to upstream **v1.9.4**, commit
 with upstream Rust **1.92.0** and locked Cargo dependencies. These are build targets;
 publication requires all native jobs to pass, not just a successful source resolution.
 
+<div class="table-wrap" markdown="1">
+
 | Platform | Backend | Native release asset |
 |---|---|---|
 | Apple Silicon, macOS 14+ | Candle + Metal | `tei-v1.9.4-macos-universal.zip` |
 | Intel Mac, macOS 14+ | Candle + Accelerate CPU | Same universal ZIP |
 | Windows 10/11 x64 | Candle CPU, static MSVC CRT | `tei-v1.9.4-windows-x64.zip` |
+
+</div>
 
 Linux, Windows ARM64, CUDA/ROCm, ONNX Runtime, Python and gRPC are not packaged here.
 These builds load compatible Safetensors models, not GGUF or ONNX model files.
@@ -97,7 +104,7 @@ bug-fix/feature proposals.
 For 4D developers looking for a local LLM engine to support semantic search, TEI might be an overkill. Unlike llama.cpp which expects weights in quantised custom GGUF format, TEI works with full precision weights. The separate server process needs memory for model loading and inference; allow for
 startup peaks as well as the model's steady-state working set.
 
-#### Usage
+## Usage
 
 Instantiate `cs.TEI.TEI` in your *On Startup* database method:
 
@@ -191,9 +198,11 @@ $TEI.terminate()
 
 `cs.TEI.TEI.new()` with no arguments is not a passive handle. If a server is already running on port 8080, the constructor does nothing. Otherwise it downloads (if needed) and launches the default model on 8080.
 
-#### AI Kit compatibility
+## AI Kit compatibility
 
 The API is compatible with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
+
+<div class="table-wrap" markdown="1">
 
 |Class|API|Availability|
 |-|-|:-:|
@@ -203,6 +212,8 @@ The API is compatible with [Open AI](https://platform.openai.com/docs/api-refere
 |Moderations|`/v1/moderations`||
 |Embeddings|`/v1/embeddings`|✅|
 |Files|`/v1/files`||
+
+</div>
 
 Upstream v1.9.4 exposes model metadata at `/info`, not `/v1/models`. Configure the
 model explicitly in clients that would otherwise discover it through that endpoint.
